@@ -1,1 +1,53 @@
-<h1>Hello!</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Подтверждение личности</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <p>Благодарим за подтверждение личности!</p>
+        <p>Пожалуйста, используйте <a href='#' id='returnLink'>этот адрес</a>,
+        чтобы вернуться обратно в телеграмм бота.</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const fragment = window.location.hash.substring(1);
+            const params = new URLSearchParams(fragment);
+            const accessToken = params.get('access_token');
+            if (!accessToken) {
+                return;
+            }
+
+            const url = "https://login.yandex.ru/info?format=json";
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                "Authorization": `OAuth ${accessToken}`,
+                },
+            });
+            const userData = await response.json();
+            const encodedEmail = btoa(userData.default_email);
+            if (!encodedEmail) {
+                return;
+            }
+ 
+            const returnLink = `https://t.me/oauth_testing_bot?start=${encodedEmail}`;
+            const returnLinkElement = document.getElementById('returnLink');
+            returnLinkElement.href = returnLink;
+        });
+    </script>
+</body>
+</html>
